@@ -1,0 +1,33 @@
+           ------------------------->
+               Pieces move clockwise
+
+
+Red     |  (o)  (o)  (o)  (o)  (o)  (o)  (o)  |    Blue
+        |     (o)                     (o)     |
+        |  (o)   (o)               (o)   (o)  |
+        |           (o)         (o)           |
+        |  (o)         (o)   (o)         (o)  |
+        |                                     |
+        |  (o)            |_|            (o)  |
+        |                                     |
+        |  (o)         (o)   (o)         (o)  |
+        |           (o)         (o)           |
+        |  (o)   (o)               (o)   (o)  |
+        |     (o)                     (o)     |
+Yellow  |  (o)  (o)  (o)  (o)  (o)  (o)  (o)  |    Green
+
+        <--------------------------------
+            Pieces move clockwise
+R - 6 = B
+R - 12 = G
+R - 18 = Y
+
+Y - 6 = R
+Y - 12 = B
+Y - 18 = G
+
+Board class? Board list?
+
+Board class may be able to accept players as parameters and assign home path
+Or process board spaces and board state?
+# research making boards!
