@@ -3,9 +3,10 @@ from Piece import *
 
 class Player:
 
-    def __init__(self, color, name, pivot_point, win_coordinates):
+    def __init__(self, color, name, start_coordinates, pivot_point, win_coordinates):
         self.color = color
         self.name = name
+        self.start_coordinates = start_coordinates
         self.pivot_point = pivot_point
         self.win_coordinates = win_coordinates
         self.win_condition = False

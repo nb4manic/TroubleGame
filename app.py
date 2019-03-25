@@ -29,7 +29,7 @@ def index_chopper(item, max_amount=1000):
         try:
             list_index = int(value) - 1
         except ValueError:
-            print('Invalid input.\n' * 4)
+            print('Invalid input.\n' * 1)
             continue
 
         if list_index >= max_amount:
@@ -49,19 +49,24 @@ def check_piece(active_player, piece):
 my_board = Board(7, 7)
 
 # red win_state
-red_pivot = (1, 0)
-red_win_coordinates = (1, 1), (1, 2), (1, 3), (1, 4)
+red_start_coordinates = [0, 0]
+red_pivot = [1, 0]
+red_win_coordinates = [1, 1], [1, 2], [1, 3], [1, 4]
 
 # blue win_state
-blue_pivot = (0, 5)
-blue_win_coordinates = (1, 5), (2, 5), (3, 5), (4, 5)
+blue_start_coordinates = [0, 6]
+blue_pivot = [0, 5]
+blue_win_coordinates = [1, 5], [2, 5], [3, 5], [4, 5]
+
 # green win_state
-green_pivot = (5, 6)
-green_win_coordinates = (5, 5), (5, 4), (5, 3), (5, 2)
+green_start_coordinates = [6, 6]
+green_pivot = [5, 6]
+green_win_coordinates = [5, 5], [5, 4], [5, 3], [5, 2]
 
 # yellow win_state
-yellow_pivot = (6, 1)
-yellow_win_coordinates = (5, 1), (4, 1), (3, 1), (2, 1)
+yellow_start_coordinates = [6, 0]
+yellow_pivot = [6, 1]
+yellow_win_coordinates = [5, 1], [4, 1], [3, 1], [2, 1]
 
 # dice
 my_board.replace_coord(3, 3, '[6]')
@@ -79,36 +84,36 @@ p4 = 'Bart'  # input('Who is yellow? ').strip()
 # color, name, pivot coordinate, and win coordinates list per player
     # pivot coordinate for victory path
 # coordinates stored in board.py
-red = Player('red', p1, red_pivot, red_win_coordinates)
-blue = Player('blue', p2, blue_pivot, blue_win_coordinates)
-green = Player('green', p3, green_pivot, green_win_coordinates)
-yellow = Player('yellow', p4, yellow_pivot, yellow_win_coordinates)
+red = Player('red', p1, red_start_coordinates, red_pivot, red_win_coordinates)
+blue = Player('blue', p2, blue_start_coordinates, blue_pivot, blue_win_coordinates)
+green = Player('green', p3, green_start_coordinates, green_pivot, green_win_coordinates)
+yellow = Player('yellow', p4, yellow_start_coordinates, yellow_pivot, yellow_win_coordinates)
 
 # Pieces associated with their respective player/color through key/value
 # player instance variable = key / list of piece instances = value
 # pass a start coordinate for pieces in [y, x] format
-pieces = {red: [PlayerPiece('red', '1', [0, 0]),
-                PlayerPiece('red', '2', [0, 0]),
-                PlayerPiece('red', '3', [0, 0]),
-                PlayerPiece('red', '4', [0, 0])],
+pieces = {red: [PlayerPiece('red', '1'),
+                PlayerPiece('red', '2'),
+                PlayerPiece('red', '3'),
+                PlayerPiece('red', '4')],
           # pivot 1,0 -> 1,4
 
-          blue: [PlayerPiece('blue', '1', [0, 6]),
-                 PlayerPiece('blue', '2', [0, 6]),
-                 PlayerPiece('blue', '3', [0, 6]),
-                 PlayerPiece('blue', '4', [0, 6])],
+          blue: [PlayerPiece('blue', '1'),
+                 PlayerPiece('blue', '2'),
+                 PlayerPiece('blue', '3'),
+                 PlayerPiece('blue', '4')],
           # pivot 0,5 -> 4,5
 
-          green: [PlayerPiece('green', '1', [6, 6]),
-                  PlayerPiece('green', '2', [6, 6]),
-                  PlayerPiece('green', '3', [6, 6]),
-                  PlayerPiece('green', '4', [6, 6])],
+          green: [PlayerPiece('green', '1'),
+                  PlayerPiece('green', '2'),
+                  PlayerPiece('green', '3'),
+                  PlayerPiece('green', '4')],
           # pivot 5,6 -> 5,2
 
-          yellow: [PlayerPiece('yellow', '1', [6, 0]),
-                   PlayerPiece('yellow', '2', [6, 0]),
-                   PlayerPiece('yellow', '3', [6, 0]),
-                   PlayerPiece('yellow', '4', [6, 0])],
+          yellow: [PlayerPiece('yellow', '1'),
+                   PlayerPiece('yellow', '2'),
+                   PlayerPiece('yellow', '3'),
+                   PlayerPiece('yellow', '4')],
           # pivot 6,1 -> 2,1
           }
 
@@ -153,6 +158,10 @@ while not (red.win_condition or blue.win_condition
                 # todo Create y/n check function
                 yn_check = 'y'  # y/n prompt bypass
                 if yn_check == 'y' or current_player.active_pieces == 0:
+                    # todo: insert collision check
+                    # collision_check(current_player.start_coordinates)
+                    # if occupied by own piece
+                    #   choose something else 
                     awoken_piece = True
                     current_player.wake_piece()     # adjust current_player start_pieces and active_pieces
                     move_roll = 1                   # awoken pieces only move onto board 1 space
@@ -166,7 +175,7 @@ while not (red.win_condition or blue.win_condition
             piece_chosen = False
 
             while not piece_chosen:
-                current_piece = pieces[current_player][index_chopper('piece', 4)]
+                current_piece = pieces[current_player][index_chopper('piece', 4)]  # 4 is max of the index (pieces)
                 # set which piece to move by grabbing selected piece from current_player's pieces dictionary
                 # index_chopper() method increments piece number to match list index
                 if awoken_piece and current_piece.status == 'start':
@@ -184,23 +193,19 @@ while not (red.win_condition or blue.win_condition
                 else:  # move forward with current_piece if status is active and piece was not awoken this turn
                     piece_chosen = True
 
-            if board_move(current_piece.coordinates, move_roll) in my_board.pieces_on_board:
-                print('Woop!')
-                pass
-            if current_piece in my_board.pieces_on_board:
-                print('Double woop!')
-
-            my_board.replace_coord(current_piece.coordinates[0], current_piece.coordinates[1], '(o)')
-            # leave previous coordinate and remove from board
+            my_board.collision_check(current_piece.coordinates)
+            #if not none:
+                # reset dat bish
 
             current_piece.move_piece(move_roll)  # move piece by turn roll amount or 1 if piece awoken from start
 
             # todo: insert coordinate check if piece landed on
 
             if awoken_piece:  # if piece moved from start to board
-                my_board.replace_coord(current_piece.coordinates[0], current_piece.coordinates[1],
+                current_piece.store_coordinates(current_player.start_coordinates)
+                my_board.replace_coord(current_player.start_coordinates[0], current_player.start_coordinates[1],
                                        f'({current_piece.color[0].capitalize()})')
-                my_board.bind_piece(current_piece.coordinates, current_piece.name, current_player.color)
+                my_board.bind_piece(current_player.start_coordinates, current_piece.name, current_player.color)
                 # update board coordinate stat list
 
                 my_board.print_board()  # reprint board after moving piece out
@@ -216,16 +221,26 @@ while not (red.win_condition or blue.win_condition
                 winner = current_player
                 break
 
-            if turn_roll == 6:
+            if turn_roll == 6: # this needs to be moved for when a piece isn't awoken, or a separate one
                 awoken_piece = False
                 continue  # give player another turn if turn roll was 6
 
             print('')
+            my_board.replace_coord(current_piece.coordinates[0], current_piece.coordinates[1], '(o)')
+            # leave previous coordinate and remove from board
+
+            del my_board.pieces_on_board[my_board.unbind_piece(current_piece.name, current_piece.color)]
+            # remove place in board queue
+
             current_piece.coordinates = board_move(current_piece.coordinates, move_roll)
             # redefine coordinates of current piece
+
+            my_board.collision_check(current_piece.coordinates)
+                # if not None then move that bish
+
             my_board.replace_coord(current_piece.coordinates[0], current_piece.coordinates[1],
                                    f'({current_piece.color[0].capitalize()})')
-            # change board coordinate to first letter of player col
+            # change board coordinate to first letter of player color
             my_board.bind_piece(current_piece.coordinates, current_piece.name, current_player.color)
             # update board coordinate stat list
 

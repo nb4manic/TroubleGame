@@ -3,10 +3,10 @@ from Player import *
 #he
 class PlayerPiece:
 
-    def __init__(self, color, name, coordinates):
+    def __init__(self, color, name):
         self.color = color
         self.name = name
-        self.coordinates = coordinates
+        self.coordinates = []
         self.status = 'start'
         self.total_spaces_moved = 0
 

@@ -29,6 +29,13 @@ class Board:
         stats = [coordinates, piece, player]
         self.pieces_on_board.append(stats)
 
+    def unbind_piece(self, piece_name, piece_color):
+        for index in range(len(self.pieces_on_board)):
+            print(index, self.pieces_on_board[index])
+            if self.pieces_on_board[index][1] == piece_name and self.pieces_on_board[index][2] == piece_color:
+                return index
+        # pass current_piece.name and color
+
     def board_check(self):
         for piece in self.pieces_on_board:
             print(piece)
@@ -39,6 +46,17 @@ class Board:
     def wipe_unused(self, unused_list):
         for coordinates in unused_list:
             self.wipe_coord(coordinates[0], coordinates[1])  # access y, x values by index of coordinates tuples
+    
+    def collision_check(self, board_coordinates):
+        if len(self.pieces_on_board) > 0:
+            for i in range(len(self.pieces_on_board)):
+                print("{}{}".format(i, self.pieces_on_board[i][0]))
+                print('Occupied by: {}'.format(self.pieces_on_board[i][1:]))
+                if board_coordinates == self.pieces_on_board[i][0]:
+                    print('Kick out {}'.format(self.pieces_on_board[i][1:]))
+                    #return index of collided piece
+                #loop over board coordinates
+
 
 
 if __name__ == "__main__":
@@ -132,4 +150,13 @@ if __name__ == "__main__":
     for coord in range(len(my_board.pieces_on_board)):
         print(f'I am {my_board.pieces_on_board[coord][0]}')
     #print(my_board.pieces_on_board[range(len(my_board.pieces_on_board))][0])
-
+    print('')
+    my_board.collision_check([0, 0])
+    print('')
+    print(my_board.pieces_on_board)
+    del my_board.pieces_on_board[my_board.unbind_piece('piece 3', 'arny')]
+    print(my_board.pieces_on_board)
+    print('')
+    print('')
+    print(my_board.pieces_on_board[1])
+    
