@@ -24,6 +24,11 @@ class PlayerPiece:
     def awaken(self):
         self.status = 'active'
 
+    def sleep(self):
+        self.status = 'start'
+        self.coordinates = []
+        print('I have gone to sleep')
+
 
 if __name__ == "__main__":
 

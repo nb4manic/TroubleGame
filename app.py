@@ -1,6 +1,8 @@
 from Piece import *
 from Player import Player
 from logicboard import *
+from yes_no_check import*
+
 
 # todo: implement player victory paths
 # remove victory space from list once reached
@@ -38,6 +40,34 @@ def index_chopper(item, max_amount=1000):
             continue
         else:
             return list_index
+
+def reset_piece(index):
+    adios = players[current_player][index - 1]
+
+# pass current_player
+# current_player.coordinates
+# current_player.move_roll
+# call board_move ?
+def master_collision(piece, coordinates, move_roll=0):
+    # piece is player if awakening piece
+    # coordinates are piece coordinates OR player start coordinates if awakening piece
+
+    move_collision = my_board.collision_check(coordinates)
+    if move_collision:
+        collision_index = my_board.get_obstacle(coordinates)
+        collision_piece = my_board.pieces_on_board[collision_index]
+        print(collision_piece) # would print coords, piece number, and player color
+        if collision_piece[2] == piece.color:
+            print("They could stay...If I didn\'t have to go there. Pick another move!")
+            return True
+            # if none, end turn
+        if collision_piece[2] != piece.color:
+            my_board.to_be_removed(collision_index)
+            return False
+            # move that bitch
+            # printouts of who was moved
+        else:
+            return False
 
 
 def check_piece(active_player, piece):
@@ -130,16 +160,32 @@ while not (red.win_condition or blue.win_condition
     for current_player in players:
         current_turn = True
         awoken_piece = False
+        activate_piece = False
+        first_step_collision = False
+        move_collision = False
+        removal_check = my_board.check_for_removals(current_player)
+        
+        while removal_check:
+            removal_index = my_board.index_removals(current_player)
+            removal_piece = pieces[current_player][(int(removal_check) - 1)]
+            print('{}\'s #{} piece is being sent home'.format(removal_piece.color.capitalize(), removal_piece.name))
+            removal_piece.sleep()
+            current_player.sleep_piece()
+            my_board.delete_from_removal(removal_index)
+            removal_check = my_board.check_for_removals(current_player)
+            # check my_board.to_be_removed for match in player color
+            # if match in player color
+            # get piece number and reset status/coordinates
 
         while current_turn:
-            print(f"{current_player.color}'s win coordinates are {current_player.win_coordinates} ")  # test print
-            print("This is the status of those spaces: ")
-            for coordinates in current_player.win_coordinates:
-                print(my_board.get_coord(coordinates[0], coordinates[1]))
-            print(f" Their pivot point looks like: " 
-                  f"{my_board.get_coord(current_player.pivot_point[0], current_player.pivot_point[1])} ")  # test print
+            #print(f"{current_player.color}'s win coordinates are {current_player.win_coordinates} ")  # test print
+            #print("This is the status of those spaces: ")
+            #for coordinates in current_player.win_coordinates:
+            #    print(my_board.get_coord(coordinates[0], coordinates[1]))
+            #print(f" Their pivot point looks like: " 
+            #      f"{my_board.get_coord(current_player.pivot_point[0], current_player.pivot_point[1])} ")  # test print
             my_board.board_check()
-
+            print(my_board.removal_queue)
             turn_roll = roll()
             move_roll = turn_roll
 
@@ -152,21 +198,23 @@ while not (red.win_condition or blue.win_condition
                 print('Better luck next time, chump!\n')
                 break
 
-            elif turn_roll == 6 and current_player.start_pieces > 0:  # todo prevent pieces moving out atop one another
-                print('Would you like to move a piece out?\n')
+            elif turn_roll == 6 and current_player.start_pieces > 0:
+                if current_player.active_pieces == 0:
+                    activate_piece = True
+                else:
+                    activate_piece = yn_check('Would you like to move a piece out?\n')
+                    # yn_check = 'y'  # y/n prompt bypass
 
-                # todo Create y/n check function
-                yn_check = 'y'  # y/n prompt bypass
-                if yn_check == 'y' or current_player.active_pieces == 0:
-                    # todo: insert collision check
-                    # collision_check(current_player.start_coordinates)
-                    # if occupied by own piece
-                    #   choose something else 
+                while activate_piece:
+                    if master_collision(current_player, current_player.start_coordinates):
+                        activate_piece = False
+                        awoken_piece = False
+                        break
                     awoken_piece = True
                     current_player.wake_piece()     # adjust current_player start_pieces and active_pieces
                     move_roll = 1                   # awoken pieces only move onto board 1 space
-                    # All are awoken on their start coordinates
-                    # todo: add
+                    activate_piece = False
+
                 else:
                     pass
 
@@ -179,27 +227,31 @@ while not (red.win_condition or blue.win_condition
                 # set which piece to move by grabbing selected piece from current_player's pieces dictionary
                 # index_chopper() method increments piece number to match list index
                 if awoken_piece and current_piece.status == 'start':
-                    # todo: insert check to ensure piece can move out
                     current_piece.awaken()  # sets piece's status to active
+                    piece_chosen = True
+                    break
                     # my_board.bind_piece(current_piece.coordinates, current_piece.name, current_player.color)
                     # bind current piece to coords
-                    piece_chosen = True
+
                 elif awoken_piece and (current_piece.status != 'start'):
                     print('That piece is already on the board...\n')
                     continue
                 elif current_piece.status != 'active':
                     print('Choose an active piece\n')
                     continue
-                else:  # move forward with current_piece if status is active and piece was not awoken this turn
-                    piece_chosen = True
+                future_move = board_move(current_piece.coordinates, move_roll)
+                # move forward with current_piece if status is active and piece was not awoken this turn
+                if master_collision(current_piece, future_move):
+                    print('Pick another piece! ')
+                    continue
+                piece_chosen = True
 
             my_board.collision_check(current_piece.coordinates)
             #if not none:
-                # reset dat bish
+                # store piece name and color
+                # reset coordinates on respective player's next turn
 
             current_piece.move_piece(move_roll)  # move piece by turn roll amount or 1 if piece awoken from start
-
-            # todo: insert coordinate check if piece landed on
 
             if awoken_piece:  # if piece moved from start to board
                 current_piece.store_coordinates(current_player.start_coordinates)
@@ -226,25 +278,23 @@ while not (red.win_condition or blue.win_condition
                 continue  # give player another turn if turn roll was 6
 
             print('')
-            my_board.replace_coord(current_piece.coordinates[0], current_piece.coordinates[1], '(o)')
-            # leave previous coordinate and remove from board
 
+            # The following lines must happen before modifying current_piece.coordinates
+            # If they don't, the board print out will retain previous traces of current_piece
+            my_board.replace_coord(current_piece.coordinates[0], current_piece.coordinates[1], '(o)')
+            # replace piece print on board. Does NOT update coordinate
             del my_board.pieces_on_board[my_board.unbind_piece(current_piece.name, current_piece.color)]
             # remove place in board queue
 
             current_piece.coordinates = board_move(current_piece.coordinates, move_roll)
-            # redefine coordinates of current piece
-
-            my_board.collision_check(current_piece.coordinates)
-                # if not None then move that bish
-
+            # Modiy current_piece.coordinates with algorithm by passing current coordinates and move_roll 
             my_board.replace_coord(current_piece.coordinates[0], current_piece.coordinates[1],
                                    f'({current_piece.color[0].capitalize()})')
-            # change board coordinate to first letter of player color
+            # change board print coordinate to first letter of player color
+
             my_board.bind_piece(current_piece.coordinates, current_piece.name, current_player.color)
             # update board coordinate stat list
 
-            # print(leave_space)
             my_board.print_board()  # reprint the board
             current_turn = False  # end current turn
 

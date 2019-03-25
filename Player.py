@@ -22,6 +22,10 @@ class Player:
         self.start_pieces -= 1
         self.active_pieces += 1
 
+    def sleep_piece(self):
+        self.start_pieces += 1
+        self.active_pieces -= 1
+
     def make_pieces(self, y, x):
         for number in range(1, 5):
             piece = [PlayerPiece(str(self.color), number, [y, x])]

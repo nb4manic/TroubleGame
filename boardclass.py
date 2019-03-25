@@ -12,6 +12,7 @@ class Board:
         self.y = y
         self.board = [['(o)' for count in range(x)] for rows in range(y)]
         self.pieces_on_board = []
+        self.removal_queue = []
 
     def print_board(self):
         # todo: coordinates
@@ -29,12 +30,12 @@ class Board:
         stats = [coordinates, piece, player]
         self.pieces_on_board.append(stats)
 
-    def unbind_piece(self, piece_name, piece_color):
+    def unbind_piece(self, piece_name, piece_color):  # pass current_piece.name and color
+        # iterates through board queue and checks for entry matching piece name and color
         for index in range(len(self.pieces_on_board)):
-            print(index, self.pieces_on_board[index])
+            print(index, self.pieces_on_board[index])  # test print???
             if self.pieces_on_board[index][1] == piece_name and self.pieces_on_board[index][2] == piece_color:
-                return index
-        # pass current_piece.name and color
+                return index  # return index if match found
 
     def board_check(self):
         for piece in self.pieces_on_board:
@@ -50,12 +51,48 @@ class Board:
     def collision_check(self, board_coordinates):
         if len(self.pieces_on_board) > 0:
             for i in range(len(self.pieces_on_board)):
-                print("{}{}".format(i, self.pieces_on_board[i][0]))
-                print('Occupied by: {}'.format(self.pieces_on_board[i][1:]))
                 if board_coordinates == self.pieces_on_board[i][0]:
-                    print('Kick out {}'.format(self.pieces_on_board[i][1:]))
+                    return True
+
+    def get_obstacle(self, board_coordinates):
+        if len(self.pieces_on_board) > 0:
+            for i in range(len(self.pieces_on_board)):
+                if board_coordinates == self.pieces_on_board[i][0]:
+                    # print('Kick out {}'.format(self.pieces_on_board[i][1:]))
+                    return i
                     #return index of collided piece
                 #loop over board coordinates
+
+
+    def to_be_removed(self, index):
+        self.removal_queue.append(self.pieces_on_board[index])
+        del self.pieces_on_board[index]
+
+
+    def match_removals(self, player):
+                # check my_board.removal_queue for match in player color
+        # if match in player color
+            # get piece number and reset status/coordinates
+        if len(self.removal_queue) > 0:
+            for i in range(len(self.removal_queue)):
+                if player.color == self.removal_queue[i][2]:  # player color match
+                    return self.removal_queue[i][1]  # return piece number
+
+    def index_removals(self, player):
+                # check my_board.removal_queue for match in player color
+        if len(self.removal_queue) > 0:
+            for i in range(len(self.removal_queue)):
+                if player.color == self.removal_queue[i][2]:  # player color match
+                    return i  # return index to remove it
+
+    def check_for_removals(self, player):
+        if len(self.removal_queue) > 0:
+            for i in range(len(self.removal_queue)):
+                if player.color == self.removal_queue[i][2]:
+                    return True
+
+    def delete_from_removal(self, index):
+        del self.removal_queue[index]
 
 
 
@@ -151,12 +188,13 @@ if __name__ == "__main__":
         print(f'I am {my_board.pieces_on_board[coord][0]}')
     #print(my_board.pieces_on_board[range(len(my_board.pieces_on_board))][0])
     print('')
-    my_board.collision_check([0, 0])
     print('')
     print(my_board.pieces_on_board)
-    del my_board.pieces_on_board[my_board.unbind_piece('piece 3', 'arny')]
     print(my_board.pieces_on_board)
     print('')
     print('')
     print(my_board.pieces_on_board[1])
-    
+    print('Removal queue contains {}'.format(my_board.removal_queue))
+    my_board.to_be_removed(1)
+    print(my_board.removal_queue)
+

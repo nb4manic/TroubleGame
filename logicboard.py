@@ -6,7 +6,7 @@ How are different win paths going to be handled?
 '''
 
 
-def board_move(board_state, move_roll=0):
+def board_move(board_state, move_roll=0): # pass pivot point, possibly home list
 
     y = board_state[0]  # define where y coordinate is stored/referenced for current piece
     x = board_state[1]  # define where x coordinate is stored/referenced for current piece
@@ -47,7 +47,7 @@ def board_move(board_state, move_roll=0):
         elif x <= 6 and y > 0:  # or (y <= 6 and x == 0):
             y -= 1
 
-        print(f'I am moving to space {y, x}')  # demonstrate piece movement within loop
+    print(f'I am attempting to move to space {y, x}')  # demonstrate piece movement within loop
     return [y, x]  # return final y and x values in a [list] after completing loop
 
 

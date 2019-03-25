@@ -26,4 +26,5 @@ if __name__ == "__main__":
         # print remaining information to reset player piece
 
     for i in range(len(my_board.pieces_on_board)):
-        print("{} {}".format(i, my_board.pieces_on_board[i][0]))
+        print("{} {}".format(i, my_board.pieces_on_board[i][0])) 
+        # return index with coordinates
