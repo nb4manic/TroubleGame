@@ -33,7 +33,7 @@ class Board:
     def unbind_piece(self, piece_name, piece_color):  # pass current_piece.name and color
         # iterates through board queue and checks for entry matching piece name and color
         for index in range(len(self.pieces_on_board)):
-            print(index, self.pieces_on_board[index])  # test print???
+            # print(index, self.pieces_on_board[index])  # test print???
             if self.pieces_on_board[index][1] == piece_name and self.pieces_on_board[index][2] == piece_color:
                 return index  # return index if match found
 
@@ -83,7 +83,7 @@ class Board:
         if len(self.removal_queue) > 0:
             for i in range(len(self.removal_queue)):
                 if player.color == self.removal_queue[i][2]:  # player color match
-                    return i  # return index to remove it
+                    return i  # return index to remove
 
     def check_for_removals(self, player):
         if len(self.removal_queue) > 0:

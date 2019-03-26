@@ -1,12 +1,52 @@
 from boardclass import *
 
-
 '''
 How are different win paths going to be handled?
 '''
 
+def victory_pathing(y, x, piece, win_path, player, move_roll):  # only called once pivot point reached
+    #piece.status = 'stretch'
+    #player.home_pieces = 4
+    #player.win_condition = True
 
-def board_move(board_state, move_roll=0): # pass pivot point, possibly home list
+    for num in range(move_roll):
+        if win_path == [[1, 1], [1, 2], [1, 3], [1, 4]]:  # red
+            if (x + move_roll) <= 4:
+                x += 1
+                move_roll -= 1
+            else:
+                print('I can\'t move that far! ')
+                return False
+
+        elif win_path == [[1, 5], [2, 5], [3, 5], [4, 5]]:  # blue
+            if (y + move_roll) <= 4:
+                y += 1
+                move_roll -= 1
+
+            else:
+                print('I can\'t move that far! ')
+                return False
+    
+        elif win_path == [[5, 5], [5, 4], [5, 3], [5, 2]]:  # green
+            if (x - move_roll) >= 2:
+                x -= 1
+                move_roll -= 1
+            else:
+                print('I can\'t move that far! ')
+                return False
+
+        elif win_path == [[5, 1], [4, 1], [3, 1], [2, 1]]:  # yeller
+            if (y - move_roll) >=2:
+                y -= 1
+                move_roll -= 1
+            else:
+                print('I can\'t move that far! ')
+                return False
+    
+    return [y, x]
+
+
+def board_move(board_state, pivot, piece, win_path, player, move_roll=0): # pass player, pivot point, possibly home list
 
     y = board_state[0]  # define where y coordinate is stored/referenced for current piece
     x = board_state[1]  # define where x coordinate is stored/referenced for current piece
@@ -14,38 +54,33 @@ def board_move(board_state, move_roll=0): # pass pivot point, possibly home list
     for num in range(0, move_roll):  # also pass current piece coordinates, pivot point, and win coordinates list
         # todo
 
-        ''' 
-        
-        if current_piece.coordinates == current_player.pivot point or in current_player.win_coordinates
-            call separate function
-            
-            that function must contain a separate algorithm for modifying board state
-        
-                if (move_roll + piece.coordinate) > win_coordinates[-1]:
-                can't make that move! select another piece
-                break  # insert check to make sure piece was moved during turn
-
-                if (move_roll + piece.coordinates) < win_coordinates[-1]:
-                    board_move
-            
-                if (move_roll + piece.coordinates) == win_coordinates[-1]:
-                    board_move
-                    del player.win_spaces[-1]
-        
-        '''
+        if ([y, x] == pivot) or piece.status == 'home':
+            print('Almost there')
+            victory_road = victory_pathing(y, x, piece, win_path, player, move_roll)
+            if not victory_road:
+                return False
+            else:
+                y = victory_road[0]
+                x = victory_road[1]
+                return[y, x]
 
         # add to x while y == 0 and x < 6
         if y == 0 and x < 6:
             x += 1
+            move_roll -= 1
         # add to y while x == 6 and y < 6
         elif x == 6 and y < 6:
             y += 1
+            move_roll -= 1
         # subtract from x while y == 6 and x > 0
         elif y == 6 and x > 0:
             x -= 1
+            move_roll -= 1
         # subtract from y while x <= 6 and y > 1
         elif x <= 6 and y > 0:  # or (y <= 6 and x == 0):
             y -= 1
+            move_roll -= 1
+
 
     print(f'I am attempting to move to space {y, x}')  # demonstrate piece movement within loop
     return [y, x]  # return final y and x values in a [list] after completing loop
