@@ -127,6 +127,7 @@ while not (red.win_condition or blue.win_condition
     '''
     for current_player in players:
         current_turn = True
+        possible_move = True
         awoken_piece = False
         activate_piece = False
         first_step_collision = False
@@ -158,7 +159,7 @@ while not (red.win_condition or blue.win_condition
             #      f"{my_board.get_coord(current_player.pivot_point[0], current_player.pivot_point[1])} ")  # test print
             my_board.board_check()
             print(my_board.removal_queue)
-            turn_roll = int(input('Enter a roll '))
+            turn_roll = roll()
             move_roll = turn_roll
 
             input('Press any key to roll ')
@@ -167,7 +168,7 @@ while not (red.win_condition or blue.win_condition
                   f'just rolled a {turn_roll}. ')
 
             # Ends current_player turn if no pieces to move and unable to awaken any
-            if turn_roll < 6 and current_player.active_pieces == 0:
+            if turn_roll != 6 and current_player.active_pieces == 0:
                 print('Better luck next time, chump!\n')
                 break
 
@@ -217,10 +218,27 @@ while not (red.win_condition or blue.win_condition
                 # move forward with current_piece if status is active and piece was not awoken this turn
                 if not future_move or master_collision(current_piece, future_move):
                     print('Pick another piece! ')
-                    continue
+                    for piece in pieces[current_player]:  
+                        # this may be able to be reloacted, but be aware of calculating possible moves of awoken pieces
+                        # currently returns no possible moves even if move possible
+                        # make function?
+                        if piece.status != 'start':
+                            hypothetical_move = master_collision(piece, board_move(piece.coordinates, current_player.pivot_point,
+                              piece, current_player.win_coordinates, current_player, move_roll))
+                            if hypothetical_move:
+                                possible_move = True
+                                break
+                    if not hypothetical_move:
+                        print('No possible moves!')
+                        possible_move = False
+            
+
                 piece_chosen = True
 
 
+            if not possible_move:
+                print('No possible moves! ')
+                break
 
             if awoken_piece:  # if piece moved from start to board
                 current_piece.store_coordinates(current_player.start_coordinates)
@@ -255,8 +273,9 @@ while not (red.win_condition or blue.win_condition
             my_board.bind_piece(current_piece.coordinates, current_piece.name, current_player.color)
             # update board coordinate stat list
 
-            if current_piece.coordinates in current_player.win_coordinates:
-                current_piece.status = 'home'
+            if (current_piece.coordinates in current_player.win_coordinates) and (current_piece.status != 'home'):
+                current_piece.home_run()
+                current_player.add_home_piece()
 
             my_board.print_board()  # reprint the board
 

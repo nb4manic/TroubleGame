@@ -29,6 +29,8 @@ class PlayerPiece:
         self.coordinates = []
         print('I have gone to sleep')
 
+    def home_run(self):
+        self.status = 'home'
 
 if __name__ == "__main__":
 

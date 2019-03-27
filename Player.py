@@ -18,6 +18,10 @@ class Player:
     def you_win(self):
         self.win_condition = True
 
+    def add_home_piece(self):
+        self.active_pieces -= 1
+        self.home_pieces += 1
+
     def wake_piece(self):
         self.start_pieces -= 1
         self.active_pieces += 1

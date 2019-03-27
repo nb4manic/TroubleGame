@@ -1,13 +1,13 @@
 from boardclass import *
 
-'''
-How are different win paths going to be handled?
-'''
 
-def victory_pathing(y, x, piece, win_path, player, move_roll):  # only called once pivot point reached
+def victory_pathing(y, x, piece, win_path, player, move_roll, pivot_secure):  # only called once pivot point reached
     #piece.status = 'stretch'
     #player.home_pieces = 4
     #player.win_condition = True
+    overextend_warning = 'I can\'t move that far! '
+
+    # win paths were working... now they aren't
 
     for num in range(move_roll):
         if win_path == [[1, 1], [1, 2], [1, 3], [1, 4]]:  # red
@@ -15,7 +15,7 @@ def victory_pathing(y, x, piece, win_path, player, move_roll):  # only called on
                 x += 1
                 move_roll -= 1
             else:
-                print('I can\'t move that far! ')
+                print(overextend_warning)
                 return False
 
         elif win_path == [[1, 5], [2, 5], [3, 5], [4, 5]]:  # blue
@@ -24,7 +24,7 @@ def victory_pathing(y, x, piece, win_path, player, move_roll):  # only called on
                 move_roll -= 1
 
             else:
-                print('I can\'t move that far! ')
+                print(overextend_warning)
                 return False
     
         elif win_path == [[5, 5], [5, 4], [5, 3], [5, 2]]:  # green
@@ -32,7 +32,7 @@ def victory_pathing(y, x, piece, win_path, player, move_roll):  # only called on
                 x -= 1
                 move_roll -= 1
             else:
-                print('I can\'t move that far! ')
+                print(overextend_warning)
                 return False
 
         elif win_path == [[5, 1], [4, 1], [3, 1], [2, 1]]:  # yeller
@@ -40,29 +40,39 @@ def victory_pathing(y, x, piece, win_path, player, move_roll):  # only called on
                 y -= 1
                 move_roll -= 1
             else:
-                print('I can\'t move that far! ')
+                print(overextend_warning)
                 return False
-    
+
     return [y, x]
 
 
-def board_move(board_state, pivot, piece, win_path, player, move_roll=0): # pass player, pivot point, possibly home list
+def board_move(board_state, pivot, piece, win_path, player, move_roll=0):  # pass player, pivot point
 
     y = board_state[0]  # define where y coordinate is stored/referenced for current piece
     x = board_state[1]  # define where x coordinate is stored/referenced for current piece
+    pivot_secure = False
 
     for num in range(0, move_roll):  # also pass current piece coordinates, pivot point, and win coordinates list
         # todo
 
+        if ([y, x] == pivot) and (move_roll != 0):
+            pivot_secure = True
+
         if ([y, x] == pivot) or piece.status == 'home':
-            print('Almost there')
-            victory_road = victory_pathing(y, x, piece, win_path, player, move_roll)
-            if not victory_road:
+            # print('Almost there')
+            victory_road = victory_pathing(y, x, piece, win_path, player, move_roll, pivot_secure)
+
+            if pivot_secure and not victory_road:  # piece reached pivot point and move roll exceeds win path
+                y = pivot[0]
+                x = pivot[1]
+                # print('Securing pivot point')
+            if not pivot_secure and not victory_road:  # not on pivot and unable to move through win path
                 return False
-            else:
+            if victory_road:  # moved into with path
                 y = victory_road[0]
                 x = victory_road[1]
-                return[y, x]
+
+            return[y, x]
 
         # add to x while y == 0 and x < 6
         if y == 0 and x < 6:
@@ -81,8 +91,7 @@ def board_move(board_state, pivot, piece, win_path, player, move_roll=0): # pass
             y -= 1
             move_roll -= 1
 
-
-    print(f'I am attempting to move to space {y, x}')  # demonstrate piece movement within loop
+    # print(f'I am attempting to move to space {y, x}')  # demonstrate piece movement within loop
     return [y, x]  # return final y and x values in a [list] after completing loop
 
 
