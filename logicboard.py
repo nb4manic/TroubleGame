@@ -1,13 +1,16 @@
 from boardclass import *
 
 
+def roll():
+    return randint(1, 6)
+
+
 def victory_pathing(y, x, piece, win_path, player, move_roll, pivot_secure):  # only called once pivot point reached
     #piece.status = 'stretch'
     #player.home_pieces = 4
     #player.win_condition = True
     overextend_warning = 'I can\'t move that far! '
-
-    # win paths were working... now they aren't
+        
 
     for num in range(move_roll):
         if win_path == [[1, 1], [1, 2], [1, 3], [1, 4]]:  # red

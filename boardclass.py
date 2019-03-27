@@ -1,10 +1,5 @@
 from random import randint
 
-
-def roll():
-    return randint(1, 6)
-
-
 class Board:
 
     def __init__(self, x, y):
