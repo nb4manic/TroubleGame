@@ -3,7 +3,7 @@ from Player import *
 from logicboard import *
 from yes_no_check import *
 from index_chopper import *
-from colorama import Fore, Style  # does not work through CMD or PowerShell
+from colorama import init, Fore, Style
 
 '''
 Coordinates are in [y, x] format
@@ -46,7 +46,7 @@ def master_collision(piece, coordinates, move_roll=0):
 
 def make_piece_sprite(piece_name, player_color):  # returns a sprite for board print
 
-    # replace return statesments with f'({player_color})' if removing colorama 
+    # replace return statements with f'({player_color})' if removing colorama 
 
     if player_color == 'red':
         return f'{Fore.RED}({piece_name}){Style.RESET_ALL}'
@@ -60,6 +60,8 @@ def make_piece_sprite(piece_name, player_color):  # returns a sprite for board p
     if player_color == 'yellow':
         return f'{Fore.YELLOW}({piece_name}){Style.RESET_ALL}'
 
+
+init()  # initialize colorama
 
 # create board instance
 my_board = Board(7, 7)
@@ -138,9 +140,7 @@ if __name__ == "__main__":
 
     while not (red.win_condition or blue.win_condition
             or green.win_condition or yellow.win_condition):
-        '''
-        These nested loops will only end once a player's home_piece variable > 3
-        '''
+        
         for current_player in players:
             current_turn = True
             possible_move = True
@@ -165,6 +165,7 @@ if __name__ == "__main__":
             while current_turn:
                 turn_roll = roll()
                 move_roll = turn_roll
+                # my_board.board_check()  # uncomment if removing colorama
 
                 input('Press Enter key to roll ')
                 my_board.replace_coord(3, 3, '[{}]'.format(turn_roll)) # replace middle board space with dice roll
