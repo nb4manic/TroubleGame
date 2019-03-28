@@ -3,13 +3,29 @@ from Player import *
 from logicboard import *
 from yes_no_check import *
 from index_chopper import *
-from colorama import Fore, Style
+from colorama import Fore, Style  # does not work through CMD or PowerShell
+
+'''
+Coordinates are in [y, x] format
+'''
 
 
-def master_collision(piece, coordinates, move_roll=0):
-    # coordinates are passed into function rather than obtaining from piece in order to calculate future moves
+# todo: clean up and remove test prints
+# todo: review functions dealing with collision and see if they can be simplified 
+
+# todo: add computer player/AI. Start simple and select a random move, later add more logic
+
+# todo: Write stats to csv file and structure it. Wins/turns/total moves/total roll etc.
+
+# todo: add terminal colors. Pieces should print the number and be shaded their respective colors
+
+# todo: Sort players list based on roll order # Eventually, add a re - roll for when players roll the same number
+
+
+def master_collision(piece, coordinates, move_roll=0):  
+    # returns True if colliding with allied piece 
+
     # coordinates are piece coordinates OR player start coordinates if awakening piece
-
     # Pass player instead of piece if awakening a piece, cannot get color from piece if piece not chosen!
  
     move_collision = my_board.collision_check(coordinates)
@@ -24,12 +40,13 @@ def master_collision(piece, coordinates, move_roll=0):
             my_board.to_be_removed(collision_index)
             return False
             # move that bitch
-            # printouts of who was moved
         else:
             return False
 
 
-def make_piece_sprite(piece_name, player_color):
+def make_piece_sprite(piece_name, player_color):  # returns a sprite for board print
+
+    # replace return statesments with f'({player_color})' if removing colorama 
 
     if player_color == 'red':
         return f'{Fore.RED}({piece_name}){Style.RESET_ALL}'
@@ -42,18 +59,6 @@ def make_piece_sprite(piece_name, player_color):
 
     if player_color == 'yellow':
         return f'{Fore.YELLOW}({piece_name}){Style.RESET_ALL}'
-
-
-# todo: clean up and remove test prints
-# todo: review collision functions and see if they can be simplified 
-
-# todo: calculate possible moves and skip a player's turn if none available
-# appears to be working correctly, may add another check for when only home pieces in play so turn will skip if roll exceeds move
-# use future move on all of current_player's pieces with move_roll?
-
-# todo: add terminal colors. Pieces should print the number and be shaded their respective colors
-
-# todo: Sort players list based on roll order # Eventually, add a re - roll for when players roll the same number
 
 
 # create board instance
@@ -83,7 +88,7 @@ yellow_win_coordinates = [[5, 1], [4, 1], [3, 1], [2, 1]]
 dice_space = [3, 3]
 
 unused_space = (2, 2), (2, 3), (2, 4), (3, 2), (3, 4), (4, 2), (4, 3), (4, 4)
-my_board.wipe_unused(unused_space)
+my_board.wipe_unused(unused_space)  # replaces unused board spaces with strings containing white space
 
 # get player names and strip whitespaces
 p1 = 'Adam'  # input('Who is red? ').strip()
@@ -92,9 +97,6 @@ p3 = 'Arnold'  # input('Who is green? ').strip()
 p4 = 'Bart'  # input('Who is yellow? ').strip()
 
 # create 4 instances of imported Player class
-# color, name, pivot coordinate, and win coordinates list per player
-    # pivot coordinate for victory path
-# coordinates stored in board.py
 red = Player('red', p1, red_start_coordinates, red_pivot, red_win_coordinates)
 blue = Player('blue', p2, blue_start_coordinates, blue_pivot, blue_win_coordinates)
 green = Player('green', p3, green_start_coordinates, green_pivot, green_win_coordinates)
@@ -102,7 +104,6 @@ yellow = Player('yellow', p4, yellow_start_coordinates, yellow_pivot, yellow_win
 
 # Pieces associated with their respective player/color through key/value
 # player instance variable = key / list of piece instances = value
-# pass a start coordinate for pieces in [y, x] format
 pieces = {red: [PlayerPiece('red', '1'),
                 PlayerPiece('red', '2'),
                 PlayerPiece('red', '3'),
@@ -150,10 +151,9 @@ if __name__ == "__main__":
             removal_check = my_board.check_for_removals(current_player)
             
             while removal_check:
-                removal_index = my_board.index_removals(current_player)
-                # reference removal queue index
+                removal_index = my_board.index_removals(current_player)  # search removal queue for pieces sent back to start
                 piece_number = my_board.removal_queue[removal_index][1]
-                removal_piece = pieces[current_player][(int(piece_number) - 1)]
+                removal_piece = pieces[current_player][(int(piece_number) - 1)]  
                 print('{}\'s #{} piece is being sent home'.format(removal_piece.color.capitalize(), removal_piece.name))
                 removal_piece.sleep()
                 current_player.sleep_piece()
@@ -161,15 +161,12 @@ if __name__ == "__main__":
                 removal_piece = None
                 removal_index = None
                 removal_check = my_board.check_for_removals(current_player)
-                # check my_board.to_be_removed for match in player color
-                # if match in player color
-                # get piece number and reset status/coordinates
 
             while current_turn:
                 turn_roll = roll()
                 move_roll = turn_roll
 
-                input('Press any key to roll ')
+                input('Press Enter key to roll ')
                 my_board.replace_coord(3, 3, '[{}]'.format(turn_roll)) # replace middle board space with dice roll
                 print(f'{current_player.color.capitalize()} player {current_player.name.capitalize()} '
                     f'just rolled a {turn_roll}. ')
@@ -183,7 +180,7 @@ if __name__ == "__main__":
                     if current_player.active_pieces == 0:
                         activate_piece = True
                     else:
-                        activate_piece = yn_check('Would you like to move a piece out? ')
+                        activate_piece = yn_check('Would you like to move a piece out? Y/N ')
 
                     while activate_piece:
                         if master_collision(current_player, current_player.start_coordinates):
@@ -192,7 +189,7 @@ if __name__ == "__main__":
                             break
                         awoken_piece = True
                         current_player.wake_piece()     # adjust current_player start_pieces and active_pieces
-                        move_roll = 1                   # awoken pieces only move onto board 1 space
+                        move_roll = 1  # awoken pieces only move onto board 1 space
                         activate_piece = False
 
                     else:
